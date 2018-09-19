@@ -1,0 +1,74 @@
+---
+title: 'Bootcamp: Day 2'
+author: "Joseph Cook"
+date: "September 18, 2018"
+output: html_document
+---
+
+## Packages 
+```{r}
+library(tidyverse)
+```
+
+## The Data
+```{r}
+gap <- read.csv(here::here("data", "gapminder5.csv"), header = TRUE, check.names = FALSE)
+str(gap)
+```
+
+## Converting Factors to Characters
+```{r}
+gap[,c("country", "continent")] <- lapply(gap[,c("country", "continent")], as.character)
+str(gap)
+```
+
+## Averages by Country
+```{r}
+aggregate(gap[,-c(1,2,4)], list(Country = gap$country), mean)
+```
+
+## the for loop alternatives
+```{r}
+gap$gdp <- gap$pop * gap$gdpPercap
+gap$log_pop <- log(gap$pop)
+gap$log_gdpPercap <- log(gap$gdpPercap)
+
+```
+
+
+## apply | for
+```{r}
+vars <- gap[,c("lifeExp","pop", "gdpPercap")]
+system.time(
+  
+  apply(vars, 2, mean)
+  
+  )
+
+system.time(
+
+    for (i in vars) {
+      print(mean(i))
+    }
+    
+  )
+
+## use apply family if it will produce cleaner code and in most situations
+## use loops on larger objects where lots of memory needs to be initiated
+```
+
+## more alternatives
+```{r}
+gap <- tibble::as.tibble(gap)
+aggregate(gap[-c(1,4)],list(Continent = gap$continent), mean) %>% 
+  arrange(desc(lifeExp))
+
+gap %>%
+  group_by(continent) %>%
+  summarize(avgLifeExp = mean(lifeExp)) %>%
+  arrange(desc(avgLifeExp))
+
+```
+
+
+
